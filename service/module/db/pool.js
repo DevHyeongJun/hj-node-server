@@ -3,46 +3,54 @@ const pg = require('pg');
 const config = {
     
     user:'postgres',
-    host:'',
-    database:'',
-    password: '',
+    host:'10.1.73.61',
+    database:'gmx_ap_gis',
+    password: 'geomex12#',
     port : 5432,
     max: 10,
 }
 
 let pool = null;
 
-module.exports.poolConnect = async (param) => {
+const conn = async (param) => {
     //param.dburl
     //param.dbid
     //param.dbpw
-    const {dburl, dbid, dbpw} = param;
-    if ( dburl.indexOf('/') == -1 && dburl.indexOf(':') == -1 ) {
-
-        return false;
-    }
-
-    const dburlSplit = dburl.split('/');
-    const ipport = dburlSplit[0].split(':');
-    
-    config.user = dbid;
-    config.password = dbpw;
-    config.port = ipport[1];
-    config.database = dburlSplit[1];
-    config.host = ipport[0];
-
     pool = new pg.Pool(config);
     
     try {
-        const isConnect = await pool.connect();
-        return isConnect;
+        await pool.connect();
+        return true;
     } catch ( e ) {
+        console.log('DB 연결에 실패하셨습니다.23');
         pool.end();
         return false;
     }
 }
 
-module.exports.query = (sql, param) => {
+process.on('unhandledRejection', error => {
+    pool.end();
+});
 
-    return pool.query(sql, param);
+module.exports.DBQuery = async (sql, param) => {
+    try {
+        //1. 연결
+        const isConn = await conn(config);
+
+        console.log(isConn);
+        //2. 쿼리 
+        const res = await pool.query(sql, param);
+        
+        //3. 종료
+        pool.end();
+        return res;
+    } catch (e) {
+        pool.end();
+        return e
+    }
+}
+
+
+module.exports.DBClose = () => {
+    pool.end();
 }
