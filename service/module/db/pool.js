@@ -17,7 +17,11 @@ const conn = async (param) => {
     //param.dbid
     //param.dbpw
     pool = new pg.Pool(config);
-    
+        
+    process.on('unhandledRejection', error => {
+        pool.end();
+    });
+
     try {
         await pool.connect();
         return true;
@@ -27,10 +31,6 @@ const conn = async (param) => {
         return false;
     }
 }
-
-process.on('unhandledRejection', error => {
-    pool.end();
-});
 
 module.exports.DBQuery = async (sql, param) => {
     try {
