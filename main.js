@@ -2,6 +2,7 @@
 const CorsInit = require('./service/module/cors/cors.js');
 
 const NotionRoute = require('./service/route/notion.js');
+const DaumRoute = require('./service/route/daum.js');
 const express = require('express');
 // 끝
 //.env 프로퍼티에서 콘피그를 가져오기 위함...ㅎ
@@ -24,6 +25,7 @@ const port = app.listen( 5050);
 
 //각 REST 에 대한 정의는 /service/route/*.js 에서 정의
 app.use("/notion", NotionRoute);
+app.use("/daum", NotionRoute);
 
 // express 서버를 실행할 때 필요한 포트 정의 및 실행 시 callback 함수를 받습니다
 app.listen(port, () => {
